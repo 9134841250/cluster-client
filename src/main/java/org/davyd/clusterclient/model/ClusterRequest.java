@@ -1,9 +1,10 @@
 package org.davyd.clusterclient.model;
 
 import org.reactivestreams.Publisher;
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
@@ -14,7 +15,7 @@ public class ClusterRequest {
     private final URI uri;
     private Duration writeIdle;
     private Runnable writeIdleHandler;
-    private Publisher<?> content;
+    private Flux<byte[]> content;
     private HttpHeaders headers;
 
     private ClusterRequest(final String method, final URI uri) {
@@ -22,7 +23,7 @@ public class ClusterRequest {
         this.uri = Objects.requireNonNull(uri, "Uri cannot be a NULL");
     }
 
-    private void setContent(Publisher<?> content) {
+    private void setContent(Flux<byte[]> content) {
         this.content = content;
     }
 
@@ -54,8 +55,8 @@ public class ClusterRequest {
         return Optional.ofNullable(writeIdleHandler);
     }
 
-    public Publisher<?> getContent() {
-        return content == null ? Mono.empty() : content;
+    public Flux<byte[]> getContent() {
+        return content == null ? Flux.empty() : content;
     }
 
     public URI getUri() {
@@ -69,7 +70,7 @@ public class ClusterRequest {
     public static final class Builder {
         private String method;
         private URI uri;
-        private Publisher<?> content;
+        private Flux<byte[]> content;
         private HttpHeaders httpHeaders;
 
         private Builder() {}
@@ -122,8 +123,14 @@ public class ClusterRequest {
             return this;
         }
 
-        public Builder content(final Publisher<?> content) {
-            this.content = Objects.requireNonNull(content, "Content cannot be a NULL");
+        public Builder content(final Publisher<byte[]> content) {
+            this.content = Flux.from(Objects.requireNonNull(content, "Content cannot be a NULL"));
+            return this;
+        }
+
+        public Builder stringContent(final Publisher<String> content) {
+            this.content = Flux.from(Objects.requireNonNull(content, "Content cannot be a NULL"))
+                    .map(string -> string.getBytes(StandardCharsets.UTF_8));
             return this;
         }
 
@@ -147,7 +154,7 @@ public class ClusterRequest {
             return this;
         }
 
-        public Builder header(final String name, final String value) {
+        public Builder header(final CharSequence name, final CharSequence value) {
             final HttpHeader header = HttpHeader.create(Objects.requireNonNull(name, "Header name cannot be a NULL"),
                     Objects.requireNonNull(value, "Header value cannot be a NULL"));
             return header(header);

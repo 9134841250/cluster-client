@@ -4,23 +4,23 @@ import java.util.Objects;
 
 public class HttpHeader {
 
-    private final String name;
-    private final String value;
+    private final CharSequence name;
+    private final CharSequence value;
 
-    private HttpHeader(final String name, final String value) {
+    private HttpHeader(final CharSequence name, final CharSequence value) {
         this.name = Objects.requireNonNull(name, "Header name must not be a null");
         this.value = Objects.requireNonNull(value, "Header value must not be a null");
     }
 
-    public static HttpHeader create(final String name, final String value) {
+    public static HttpHeader create(final CharSequence name, final CharSequence value) {
         return new HttpHeader(name, value);
     }
 
-    public String getName() {
+    public CharSequence getName() {
         return name;
     }
 
-    public String getValue() {
+    public CharSequence getValue() {
         return value;
     }
 

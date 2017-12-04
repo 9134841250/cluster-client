@@ -31,11 +31,11 @@ public class HttpHeaders implements Iterable<HttpHeader> {
         return headers.size();
     }
 
-    public Iterable<String> names() {
+    public Iterable<CharSequence> names() {
         return headers.stream().map(HttpHeader::getName).collect(Collectors.toList());
     }
 
-    public Iterable<String> values() {
+    public Iterable<CharSequence> values() {
         return headers.stream().map(HttpHeader::getValue).collect(Collectors.toList());
     }
 
@@ -62,7 +62,7 @@ public class HttpHeaders implements Iterable<HttpHeader> {
         return headers.stream().filter(header -> header.getName().equals(name)).findAny();
     }
 
-    public Optional<String> get(final String name) {
+    public Optional<CharSequence> get(final String name) {
         return find(name).map(HttpHeader::getValue);
     }
 
